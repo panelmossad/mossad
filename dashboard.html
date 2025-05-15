@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexusHack | Plateforme de Contrôle</title>
+    <style>
+        :root {
+            --dark: #121212;
+            --light: #ffffff;
+            --accent: #0078d7;
+            --accent-alt: #0063b1;
+            --success: #4caf50;
+            --warning: #ffc107;
+            --danger: #ff4d4d;
+            --font: 'Segoe UI', Arial, sans-serif;
+            --secondary: #2b2b2b;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font);
+            transition: all 0.2s ease;
+        }
+        
+        body {
+            background-color: var(--dark);
+            color: var(--light);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        header {
+            padding: 1rem;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+        
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--success);
+            animation: blink 2s infinite;
+        }
+        
+        main {
+            display: grid;
+            grid-template-columns: 250px 1fr 300px;
+            height: calc(100vh - 60px);
+        }
+        
+        .sidebar {
+            background-color: var(--secondary);
+            border-right: 1px solid #444;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+        
+        .target-list {
+            list-style: none;
+        }
+        
+        .target-item {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+        }
+        
+        .target-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-left: 3px solid var(--accent);
+        }
+        
+        .target-item.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 3px solid var(--accent);
+        }
+        
+        .target-status {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        
+        .status-online {
+            background-color: var(--success);
+        }
+        
+        .status-offline {
+            background-color: var(--danger);
+        }
+        
+        .center-panel {
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .visualizer {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+            height: 250px;
+            margin-bottom: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .visualizer-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .network-map {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .node {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: var(--light);
+        }
+        
+        .node:nth-child(1) {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--accent);
+            width: 30px;
+            height: 30px;
+        }
+        
+        .node:nth-child(2) {
+            top: 30%;
+            left: 30%;
+            background-color: var(--success);
+        }
+        
+        .node:nth-child(3) {
+            top: 70%;
+            left: 40%;
+            background-color: var(--warning);
+        }
+        
+        .node:nth-child(4) {
+            top: 40%;
+            left: 70%;
+            background-color: var(--danger);
+        }
+        
+        .node:nth-child(5) {
+            top: 20%;
+            left: 60%;
+            background-color: var(--light);
+        }
+        
+        .node:nth-child(6) {
+            top: 60%;
+            left: 80%;
+            background-color: var(--warning);
+        }
+        
+        .node:nth-child(7) {
+            top: 80%;
+            left: 20%;
+            background-color: var(--success);
+        }
+        
+        .line {
+            position: absolute;
+            height: 1px;
+            background-color: rgba(255, 255, 255, 0.1);
+            transform-origin: left center;
+        }
+        
+        .line:nth-child(8) {
+            width: 180px;
+            top: 50%;
+            left: 50%;
+            transform: rotate(45deg);
+        }
+        
+        .line:nth-child(9) {
+            width: 150px;
+            top: 50%;
+            left: 50%;
+            transform: rotate(110deg);
+        }
+        
+        .line:nth-child(10) {
+            width: 120px;
+            top: 50%;
+            left: 50%;
+            transform: rotate(200deg);
+        }
+        
+        .line:nth-child(11) {
+            width: 200px;
+            top: 50%;
+            left: 50%;
+            transform: rotate(270deg);
+        }
+        
+        .line:nth-child(12) {
+            width: 160px;
+            top: 50%;
+            left: 50%;
+            transform: rotate(300deg);
+        }
+        
+        .line:nth-child(13) {
+            width: 140px;
+            top: 50%;
+            left: 50%;
+            transform: rotate(350deg);
+        }
+        
+        .tools {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+        
+        .tool {
+            background-color: var(--secondary);
+            border: 1px solid #444;
+            border-radius: 5px;
+            padding: 1rem;
+            cursor: pointer;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .tool:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .tool-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+        }
+        
+        .right-panel {
+            border-left: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .console {
+            flex: 1;
+            background-color: var(--secondary);
+            border: 1px solid #444;
+            border-radius: 4px;
+            padding: 0.5rem;
+            font-family: monospace;
+            font-size: 0.9rem;
+            overflow-y: auto;
+        }
+        
+        .console-line {
+            margin-bottom: 0.5rem;
+            opacity: 0.8;
+        }
+        
+        .console-line.error {
+            color: var(--danger);
+        }
+        
+        .console-line.warning {
+            color: var(--warning);
+        }
+        
+        .console-line.success {
+            color: var(--success);
+        }
+        
+        .command-input {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-top: 1px solid #333;
+        }
+        
+        .prompt {
+            color: var(--accent);
+            margin-right: 0.5rem;
+        }
+        
+        .command-input input {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--light);
+            outline: none;
+            font-family: monospace;
+            background-color: #1a1a1a;
+            border: 1px solid #444;
+            transition: border-color 0.3s;
+        }
+        
+        .command-input input:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+        
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-top: 1px solid #333;
+            font-size: 0.8rem;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .modal-content {
+            background-color: var(--secondary);
+            border: 1px solid #444;
+            border-radius: 5px;
+            width: 500px;
+            max-width: 90%;
+            padding: 1.5rem;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .modal-title {
+            font-size: 1.2rem;
+            color: var(--accent);
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--light);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .modal-body {
+            margin-bottom: 1rem;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 10px;
+            background-color: #333;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: var(--accent);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .btn-primary {
+            background-color: var(--accent);
+            color: var(--dark);
+            transition: background-color 0.3s;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+            color: var(--light);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--accent-alt);
+        }
+        
+        .btn-danger:hover {
+            background-color: #e03434;
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            background-color: rgba(0, 0, 0, 0.8);
+            border-left: 3px solid var(--accent);
+            padding: 1rem;
+            border-radius: 3px;
+            max-width: 300px;
+            animation: slideIn 0.3s ease, fadeOut 0.3s 2.7s ease;
+            z-index: 1000;
+            opacity: 0;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+        
+        @keyframes blink {
+            0% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.3;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">NexusHack v2.5</div>
+        <div class="status">
+            <div class="status-indicator"></div>
+            <span>Connexion sécurisée</span>
+        </div>
+    </header>
+    
+    <main>
+        <div class="sidebar">
+            <h3>Cibles connectées</h3>
+            <ul class="target-list">
+                <li class="target-item active">
+                    <span class="target-status status-online"></span>
+                    ServeurCentral-A1
+                </li>
+                <li class="target-item">
+                    <span class="target-status status-online"></span>
+                    CameraSecurite-B3
+                </li>
+                <li class="target-item">
+                    <span class="target-status status-online"></span>
+                    SystemeAlerte-C2
+                </li>
+                <li class="target-item">
+                    <span class="target-status status-offline"></span>
+                    PorteSecurisee-D7
+                </li>
+                <li class="target-item">
+                    <span class="target-status status-online"></span>
+                    BaseDeSecurite-E4
+                </li>
+                <li class="target-item">
+                    <span class="target-status status-offline"></span>
+                    ReseauInterne-F9
+                </li>
+            </ul>
+            
+            <h3 style="margin-top: 1.5rem;">Points d'accès</h3>
+            <ul class="target-list">
+                <li class="target-item">
+                    <span class="target-status status-online"></span>
+                    Node-192.168.1.1
+                </li>
+                <li class="target-item">
+                    <span class="target-status status-online"></span>
+                    Node-192.168.1.25
+                </li>
+                <li class="target-item">
+                    <span class="target-status status-offline"></span>
+                    Node-192.168.1.76
+                </li>
+            </ul>
+        </div>
+        
+        <div class="center-panel">
+            <div class="visualizer">
+                <div class="visualizer-content">
+                    <div class="network-map">
+                        <div class="node pulse"></div>
+                        <div class="node"></div>
+                        <div class="node"></div>
+                        <div class="node"></div>
+                        <div class="node"></div>
+                        <div class="node"></div>
+                        <div class="node"></div>
+                        <div class="line"></div>
+                        <div class="line"></div>
+                        <div class="line"></div>
+                        <div class="line"></div>
+                        <div class="line"></div>
+                        <div class="line"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <h3>Outils de piratage</h3>
+            <div class="tools">
+                <div class="tool" onclick="showModal('bruteforce')">
+                    <div class="tool-icon">🔓</div>
+                    <div class="tool-name">Force brute</div>
+                </div>
+                <div class="tool" onclick="showModal('keylogger')">
+                    <div class="tool-icon">⌨️</div>
+                    <div class="tool-name">Keylogger</div>
+                </div>
+                <div class="tool" onclick="showModal('ddos')">
+                    <div class="tool-icon">🌊</div>
+                    <div class="tool-name">DDoS</div>
+                </div>
+                <div class="tool" onclick="showModal('backdoor')">
+                    <div class="tool-icon">🚪</div>
+                    <div class="tool-name">Backdoor</div>
+                </div>
+                <div class="tool" onclick="showModal('phishing')">
+                    <div class="tool-icon">🎣</div>
+                    <div class="tool-name">Phishing</div>
+                </div>
+                <div class="tool" onclick="showModal('ransomware')">
+                    <div class="tool-icon">🔒</div>
+                    <div class="tool-name">Ransomware</div>
+                </div>
+                <div class="tool" onclick="showModal('mitm')">
+                    <div class="tool-icon">👁️</div>
+                    <div class="tool-name">Man-in-the-middle</div>
+                </div>
+                <div class="tool" onclick="showModal('rootkit')">
+                    <div class="tool-icon">🌱</div>
+                    <div class="tool-name">Rootkit</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="right-panel">
+            <div class="console" id="console">
+                <div class="console-line">Initialisation de la session...</div>
+                <div class="console-line">Connexion établie au serveur proxy</div>
+                <div class="console-line">Masquage d'IP activé</div>
+                <div class="console-line success">Connexion sécurisée établie</div>
+                <div class="console-line">Scan du réseau en cours...</div>
+                <div class="console-line">Détection de 7 appareils</div>
+                <div class="console-line">Analyse des vulnérabilités...</div>
+                <div class="console-line success">3 failles détectées</div>
+                <div class="console-line warning">Activité suspecte détectée sur ServeurCentral-A1</div>
+                <div class="console-line">Tentative d'accès à distance...</div>
+                <div class="console-line success">Accès obtenu à ServeurCentral-A1</div>
+                <div class="console-line">Collecte des informations système...</div>
+                <div class="console-line">OS: Linux 5.4.0</div>
+                <div class="console-line">Pare-feu: Actif</div>
+                <div class="console-line">Antivirus: Désactivé</div>
+                <div class="console-line">En attente de commandes...</div>
+            </div>
+            
+            <div class="command-input">
+                <span class="prompt">></span>
+                <input type="text" placeholder="Entrez une commande..." id="command-input">
+            </div>
+            
+            <div class="status-bar">
+                <div>Ping: 45ms</div>
+                <div>CPU: 24%</div>
+                <div>Mémoire: 1.2GB/4GB</div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Modales pour chaque outil -->
+    <div class="modal" id="bruteforce-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Force brute - Craquage de mot de passe</div>
+                <button class="close-btn" onclick="closeModal('bruteforce')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Cible: ServeurCentral-A1</p>
+                <p>Type d'authentification: SSH</p>
+                <p>Dictionnaire: rockyou.txt (14.3 millions de mots de passe)</p>
+                <p>Progression:</p>
+                <div class="progress-container">
+                    <div class="progress-bar" id="bruteforce-progress"></div>
+                </div>
+                <div id="bruteforce-status">En attente...</div>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-danger" onclick="closeModal('bruteforce')">Annuler</button>
+                <button class="btn btn-primary" onclick="startBruteforce()">Démarrer</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="keylogger-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Keylogger - Capture de frappes</div>
+                <button class="close-btn" onclick="closeModal('keylogger')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Cible: ServeurCentral-A1</p>
+                <p>Utilisateur: admin@system</p>
+                <p>Méthode d'injection: Script JavaScript</p>
+                <p>Statut: Prêt à déployer</p>
+                <p>Mode de capture: Silencieux (pas d'alerte système)</p>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-danger" onclick="closeModal('keylogger')">Annuler</button>
+                <button class="btn btn-primary" onclick="deployKeylogger()">Déployer</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="ddos-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Attaque DDoS</div>
+                <button class="close-btn" onclick="closeModal('ddos')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Cible: ServeurCentral-A1</p>
+                <p>Adresse IP: 192.168.1.1</p>
+                <p>Port: 80</p>
+                <p>Méthode: UDP Flood</p>
+                <p>Botnets disponibles: 5</p>
+                <p>Puissance estimée: 15 Gbps</p>
+                <div class="progress-container">
+                    <div class="progress-bar" id="ddos-progress"></div>
+                </div>
+                <div id="ddos-status">En attente de lancement...</div>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-danger" onclick="closeModal('ddos')">Annuler</button>
+                <button class="btn btn-primary" onclick="startDDoS()">Lancer</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="backdoor-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Installation de Backdoor</div>
+                <button class="close-btn" onclick="closeModal('backdoor')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Cible: ServeurCentral-A1</p>
+                <p>Type de backdoor: Persistante</p>
+                <p>Méthode d'installation: Service système</p>
+                <p>Autostart: Oui</p>
+                <p>Cryptage: AES-256</p>
+                <div class="progress-container">
+                    <div class="progress-bar" id="backdoor-progress"></div>
+                </div>
+                <div id="backdoor-status">Prêt à installer...</div>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-danger" onclick="closeModal('backdoor')">Annuler</button>
+                <button class="btn btn-primary" onclick="installBackdoor()">Installer</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="phishing-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Campagne de Phishing</div>
+                <button class="close-btn" onclick="closeModal('phishing')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Type: Email d'entreprise</p>
+                <p>Cible: Employés de ServeurCentral</p>
+                <p>Plateforme simulée: Portail de connexion interne</p>
+                <p>Emails à envoyer: 25</p>
+                <p>Templates disponibles:</p>
+                <ul>
+                    <li>Alerte de sécurité</li>
+                    <li>Mise à jour obligatoire</li>
+                    <li>Problème de mot de passe</li>
+                </ul>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-danger" onclick="closeModal('phishing')">Annuler</button>
+                <button class="btn btn-primary" onclick="launchPhishing()">Lancer</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="ransomware-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Déploiement de Ransomware</div>
+                <button class="close-btn" onclick="closeModal('ransomware')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Cible: ServeurCentral-A1</p>
+                <p>Type: Cryptolocker</p>
+                <p>Méthode de cryptage: RSA-2048 + AES-256</p>
+                <p>Cible des fichiers: .doc, .xls, .pdf, .jpg, .mp4</p>
+                <p>Demande de rançon: 5 BTC</p>
+                <div class="progress-container">
+                    <div class="progress-bar" id="ransomware-progress"></div>
+                </div>
+                <div id="ransomware-status">Prêt à déployer...</div>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-danger" onclick="closeModal('ransomware')">Annuler</button>
+                <button class="btn btn-primary" onclick="deployRansomware()">Déployer</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="mitm-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Attaque Man-in-the-Middle</div>
+                <button class="close-btn" onclick="closeModal('mitm')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Cible: Réseau local ServeurCentral</p>
+                <p>Type: ARP Poisoning</p>
+                <p>Capture SSL: Oui (Certificat frauduleux)</p>
+                <p>Cibles de capture: HTTP, HTTPS, FTP, SMTP</p>
+                <p>Filtres:</p>
+                <ul>
+                    <li>Mots de passe</li>
+                    <li>Cookies</li>
+                    <li>Informations bancaires</li>
+                </ul>
+                <div class="progress-container">
+                    <div class="progress-bar" id="mitm-progress"></div>
+                </div>
+                <div id="mitm-status">Prêt à lancer...</div>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-danger" onclick="closeModal('mitm')">Annuler</button>
+                <button class="btn btn-primary" onclick="startMITM()">Lancer</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="rootkit-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Installation de Rootkit</div>
+                <button class="close-btn" onclick="closeModal('rootkit')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Cible: ServeurCentral-A1</p>
+                <p>Type: Kernel-Mode</p>
+                <p>Persistance: Boot Record</p>
+                <p>Élévation de privilèges: Oui</p>
+                <p>Anti-détection: Oui</p>
+                <div class="progress-container">
+                    <div class="progress-bar" id="rootkit-progress"></div>
+                </div>
+                <div id="rootkit-status">Prêt à installer...</div>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-danger" onclick="closeModal('rootkit')">Annuler</button>
+                <button class="btn btn-primary" onclick="installRootkit()">Installer</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification"></div>
+    
+    <script>
+        // Vérifier l'authentification
+        if(!sessionStorage.getItem('authenticated')) {
+            window.location.href = "index.html";
+        }
+
+        // Ajouter fonction de déconnexion
+        function logout() {
+            sessionStorage.removeItem('authenticated');
+            window.location.href = "index.html";
+        }
+
+        // Variables globales
+        const consoleLogs = document.getElementById('console');
+        const commandInput = document.getElementById('command-input');
+        
+        // Historique des commandes et commandes disponibles
+        let commandHistory = [];
+        let historyPosition = -1;
+        const availableCommands = {
+            'help': 'Affiche la liste des commandes',
+            'scan': 'Scan le réseau cible',
+            'clear': 'Efface la console',
+            'status': 'Affiche le statut du système',
+            'connect': 'Se connecte à une cible (connect <ip/hostname>)',
+            'exploit': 'Exploite une vulnérabilité (exploit <ip>)',
+            'crack': 'Lance une attaque par force brute',
+            'shell': 'Ouvre un shell sur la cible',
+            'exit': 'Ferme la connexion active'
+        };
+
+        // Simulateur d'attaque
+        class AttackSimulator {
+            constructor() {
+                this.isRunning = false;
+                this.attacks = {};
+                this.animations = {};
+            }
+
+            async startAttack(type, target, options = {}) {
+                if (this.isRunning) {
+                    showNotification("Une attaque est déjà en cours", "warning");
+                    return false;
+                }
+
+                this.isRunning = true;
+                const attack = {
+                    type,
+                    target,
+                    progress: 0,
+                    status: "initializing",
+                    logs: []
+                };
+
+                this.attacks[type] = attack;
+                this.simulateAttackSteps(type, options);
+            }
+
+            async simulateAttackSteps(type, options) {
+                const attacks = {
+                    bruteforce: {
+                        steps: [
+                            ["Initialisation du dictionnaire...", 1000],
+                            ["Chargement de rockyou.txt (14.3M mots de passe)...", 1500],
+                            ["Analyse du hash de mot de passe...", 2000],
+                            ["Détection du sel de hashage...", 1000],
+                            ["Démarrage des workers GPU (4x NVIDIA RTX 4090)...", 2000],
+                            ["Test des combinaisons: 250k/sec...", 3000],
+                            ["Pattern détecté dans la séquence...", 1500],
+                            ["Collision trouvée! Déchiffrement en cours...", 2000],
+                            ["Mot de passe récupéré: admin_system_2023!", 1000]
+                        ],
+                        completion: "Attaque réussie - Accès système obtenu"
+                    },
+                    ddos: {
+                        steps: [
+                            ["Initialisation du réseau de zombies...", 1000],
+                            ["Connection à 2,457 machines compromises...", 2000],
+                            ["Distribution de la charge d'attaque...", 1500],
+                            ["Synchronisation des horloges pour attaque coordonnée...", 1000],
+                            ["Démarrage de l'inondation UDP/TCP/ICMP...", 1000],
+                            ["Trafic généré: 15.7 Gbps...", 2000],
+                            ["Saturation des ressources cibles détectée...", 1500],
+                            ["Bypass du WAF en cours...", 2000],
+                            ["Service cible hors ligne!", 1000]
+                        ],
+                        completion: "Attaque DDoS réussie - Cible neutralisée"
+                    },
+                    // Ajouter d'autres types d'attaques similaires...
+                };
+
+                const attackSteps = attacks[type]?.steps || [];
+                let progress = 0;
+
+                for (const [message, delay] of attackSteps) {
+                    await this.delay(delay);
+                    progress += Math.floor(100 / attackSteps.length);
+                    this.updateProgress(type, progress, message);
+                }
+
+                this.completeAttack(type, attacks[type]?.completion || "Attaque terminée");
+            }
+
+            updateProgress(type, progress, message) {
+                const progressBar = document.getElementById(`${type}-progress`);
+                const status = document.getElementById(`${type}-status`);
+                
+                if (progressBar) progressBar.style.width = `${progress}%`;
+                if (status) status.textContent = message;
+                
+                addConsoleLog(`[${type.toUpperCase()}] ${message}`, 
+                    progress < 100 ? 'warning' : 'success');
+            }
+
+            completeAttack(type, message) {
+                this.isRunning = false;
+                showNotification(message, "success");
+                this.updateProgress(type, 100, message);
+            }
+
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+        }
+
+        const simulator = new AttackSimulator();
+
+        // Fonctions d'interface
+        function updateProgressBar(id, value) {
+            const progress = document.getElementById(id);
+            if (progress) progress.style.width = `${value}%`;
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.style.opacity = '1';
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+            }, 3000);
+        }
+
+        // Gestionnaire de commandes
+        const commandHandlers = {
+            help: () => {
+                addConsoleLog("=== Commandes disponibles ===", "success");
+                Object.entries(availableCommands).forEach(([cmd, desc]) => {
+                    addConsoleLog(`${cmd.padEnd(15)} - ${desc}`);
+                });
+            },
+            clear: () => {
+                consoleLogs.innerHTML = '';
+                addConsoleLog("Console effacée.", "success");
+            },
+            scan: async () => {
+                addConsoleLog("Lancement du scan réseau approfondi...", "warning");
+                await simulator.delay(1000);
+                addConsoleLog("Découverte des hôtes actifs...");
+                await simulator.delay(800);
+                addConsoleLog("192.168.1.1    [SSH, HTTP, HTTPS] - Firewall: Actif");
+                await simulator.delay(400);
+                addConsoleLog("192.168.1.25   [FTP, SMTP] - Vulnérabilités: 3");
+                await simulator.delay(600);
+                addConsoleLog("192.168.1.76   [RDP] - OS: Windows Server 2019");
+                addConsoleLog("Scan terminé - 3 cibles potentielles identifiées", "success");
+            },
+            exploit: async (target) => {
+                if (!target) {
+                    addConsoleLog("Usage: exploit <ip>", "error");
+                    return;
+                }
+                addConsoleLog(`[*] Analyse des vulnérabilités sur ${target}...`, "warning");
+                await simulator.delay(1000);
+                addConsoleLog("[+] Ports ouverts détectés: 22, 80, 443");
+                await simulator.delay(800);
+                addConsoleLog("[!] Vulnérabilité CVE-2023-1234 détectée!");
+                await simulator.delay(1000);
+                addConsoleLog("[*] Génération du payload...");
+                await simulator.delay(1500);
+                addConsoleLog("[+] Injection du shellcode...");
+                await simulator.delay(2000);
+                addConsoleLog("[*] Tentative d'exploitation...");
+                await simulator.delay(1500);
+                addConsoleLog("[+] Exploitation réussie! Shell obtenu", "success");
+                addConsoleLog("Tapez 'shell' pour accéder au terminal", "info");
+            },
+            crack: async (target) => {
+                addConsoleLog("[*] Initialisation de l'attaque...", "warning");
+                await simulator.delay(800);
+                addConsoleLog("[+] Mode d'attaque: Force brute hybride");
+                await simulator.delay(600);
+                addConsoleLog("[*] Chargement du dictionnaire...");
+                
+                let progress = 0;
+                const interval = setInterval(async () => {
+                    progress += 5;
+                    addConsoleLog(`[+] Test des mots de passe: ${progress * 1000}/sec`);
+                    if (progress >= 20) {
+                        clearInterval(interval);
+                        await simulator.delay(500);
+                        addConsoleLog("[!] Hash cassé!", "success");
+                        addConsoleLog("Credentials trouvés:", "success");
+                        addConsoleLog("user: admin");
+                        addConsoleLog("pass: P@ssw0rd123!");
+                    }
+                }, 800);
+            },
+            connect: async (target) => {
+                if (!target) {
+                    const targets = [
+                        "ServeurCentral-A1",
+                        "CameraSecurite-B3",
+                        "SystemeAlerte-C2",
+                        "Node-192.168.1.1",
+                        "Node-192.168.1.25"
+                    ];
+                    addConsoleLog("Cibles disponibles:", "info");
+                    targets.forEach(t => addConsoleLog(`  - ${t}`));
+                    addConsoleLog("Usage: connect <cible>", "warning");
+                    return;
+                }
+                addConsoleLog(`[*] Tentative de connexion à ${target}...`, "warning");
+                await simulator.delay(1500);
+                addConsoleLog("[+] Établissement du tunnel chiffré...");
+                await simulator.delay(1000);
+                addConsoleLog("[*] Bypass du pare-feu en cours...");
+                await simulator.delay(800);
+                addConsoleLog(`[+] Connexion établie avec ${target}!`, "success");
+            },
+            status: async () => {
+                addConsoleLog("=== Statut du système ===", "info");
+                addConsoleLog("CPU: 24% | RAM: 1.2GB/4GB | Network: 45ms");
+                addConsoleLog("Connexions actives: 3");
+                addConsoleLog("Backdoors installées: 2");
+                addConsoleLog("Keyloggers actifs: 1");
+                addConsoleLog("Niveau de détection: Faible", "success");
+            },
+            shell: async () => {
+                addConsoleLog("[*] Initialisation du shell distant...", "warning");
+                await simulator.delay(1000);
+                addConsoleLog("[+] Shell sécurisé établi sur le port 4444", "success");
+                addConsoleLog("root@target:~# ", "info");
+                
+                // Simulation de commandes shell
+                const shellCommands = {
+                    'ls': 'total 36\ndrwxr-xr-x   2 root root  4096 Mar 15 10:23 .\ndrwxr-xr-x  22 root root  4096 Mar 15 10:23 ..',
+                    'pwd': '/root/secured/data',
+                    'whoami': 'root',
+                    'id': 'uid=0(root) gid=0(root) groups=0(root)',
+                    'ps': 'PID TTY          TIME CMD\n 1 ?        00:00:00 systemd\n 2 ?        00:00:00 kthreadd',
+                    'netstat': 'Active Internet connections (servers and established)\nProto Recv-Q Send-Q Local Address'
+                };
+            },
+            exit: () => {
+                addConsoleLog("[*] Fermeture des connexions...", "warning");
+                setTimeout(() => {
+                    addConsoleLog("[+] Session terminée.", "success");
+                }, 500);
+            },
+            logout: () => {
+                addConsoleLog("Déconnexion...", "warning");
+                setTimeout(() => {
+                    logout();
+                }, 1000);
+            }
+        };
+
+        // Mise à jour du gestionnaire de commandes
+        function handleCommand(input) {
+            const [command, ...args] = input.split(' ');
+            if (commandHandlers[command]) {
+                commandHandlers[command](...args);
+            } else {
+                addConsoleLog(`Commande inconnue: ${command}. Tapez 'help' pour la liste des commandes.`, "error");
+            }
+        }
+
+        // Événements
+        commandInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const command = this.value.trim();
+                if (command) {
+                    addConsoleLog(`root@nexushack:~# ${command}`, "info");
+                    commandHistory.unshift(command);
+                    historyPosition = -1;
+                    this.value = '';
+                    handleCommand(command);
+                }
+            } else if (e.key === 'ArrowUp') {
+                if (commandHistory.length > 0 && historyPosition < commandHistory.length - 1) {
+                    historyPosition++;
+                    this.value = commandHistory[historyPosition];
+                }
+            } else if (e.key === 'ArrowDown') {
+                if (historyPosition > 0) {
+                    historyPosition--;
+                    this.value = commandHistory[historyPosition];
+                } else {
+                    historyPosition = -1;
+                    this.value = '';
+                }
+            }
+        });
+
+        // Gestionnaires d'outils
+        function startBruteforce() {
+            simulator.startAttack('bruteforce', 'ServeurCentral-A1', 8000);
+        }
+
+        function deployKeylogger() {
+            simulator.startAttack('keylogger', 'ServeurCentral-A1', 5000);
+        }
+
+        function startDDoS() {
+            simulator.startAttack('ddos', 'ServeurCentral-A1', 10000);
+        }
+
+        function installBackdoor() {
+            simulator.startAttack('backdoor', 'ServeurCentral-A1', 6000);
+        }
+
+        // Ajouter un log à la console
+        function addConsoleLog(message, type = '') {
+            const line = document.createElement('div');
+            line.classList.add('console-line');
+            if (type) line.classList.add(type);
+            line.textContent = message;
+            consoleLogs.appendChild(line);
+            consoleLogs.scrollTop = consoleLogs.scrollHeight;
+        }
+
+        // Notification simple
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.opacity = '1';
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.opacity = '0';
+            }, 3000);
+        }
+
+        // Simuler les actions des outils
+        function startBruteforce() {
+            const progress = document.getElementById('bruteforce-progress');
+            const status = document.getElementById('bruteforce-status');
+            progress.style.width = '0%';
+            status.textContent = 'Démarrage de l\'attaque...';
+            addConsoleLog('Lancement de l\'attaque brute force...', 'warning');
+
+            let i = 0;
+            const interval = setInterval(() => {
+                i += 10;
+                progress.style.width = `${i}%`;
+                if (i >= 100) {
+                    clearInterval(interval);
+                    status.textContent = 'Mot de passe trouvé: admin123!';
+                    addConsoleLog('Mot de passe trouvé: admin123!', 'success');
+                    showNotification('Brute force terminé avec succès.');
+                }
+            }, 300);
+        }
+
+        function deployKeylogger() {
+            closeModal('keylogger');
+            addConsoleLog('Déploiement du keylogger...', 'warning');
+            setTimeout(() => {
+                addConsoleLog('Keylogger actif sur ServeurCentral-A1', 'success');
+                showNotification('Keylogger déployé.');
+            }, 1000);
+        }
+
+        function startDDoS() {
+            const progress = document.getElementById('ddos-progress');
+            const status = document.getElementById('ddos-status');
+            progress.style.width = '0%';
+            status.textContent = 'Attaque en cours...';
+            addConsoleLog('Début de l\'attaque DDoS...', 'warning');
+
+            let i = 0;
+            const interval = setInterval(() => {
+                i += 20;
+                progress.style.width = `${i}%`;
+                if (i >= 100) {
+                    clearInterval(interval);
+                    status.textContent = 'Attaque terminée';
+                    addConsoleLog('Attaque DDoS terminée.', 'success');
+                    showNotification('DDoS terminé.');
+                }
+            }, 500);
+        }
+
+        function installBackdoor() {
+            const progress = document.getElementById('backdoor-progress');
+            const status = document.getElementById('backdoor-status');
+            progress.style.width = '0%';
+            status.textContent = 'Installation en cours...';
+            addConsoleLog('Installation de backdoor...', 'warning');
+
+            let i = 0;
+            const interval = setInterval(() => {
+                i += 25;
+                progress.style.width = `${i}%`;
+                if (i >= 100) {
+                    clearInterval(interval);
+                    status.textContent = 'Backdoor installé avec succès';
+                    addConsoleLog('Backdoor installé.', 'success');
+                    showNotification('Backdoor actif.');
+                }
+            }, 400);
+        }
+
+        function launchPhishing() {
+            closeModal('phishing');
+            addConsoleLog('Campagne de phishing lancée.', 'warning');
+            showNotification('Phishing en cours...');
+        }
+
+        function deployRansomware() {
+            const progress = document.getElementById('ransomware-progress');
+            const status = document.getElementById('ransomware-status');
+            progress.style.width = '0%';
+            status.textContent = 'Chiffrement des fichiers...';
+            addConsoleLog('Déploiement du ransomware...', 'warning');
+
+            let i = 0;
+            const interval = setInterval(() => {
+                i += 20;
+                progress.style.width = `${i}%`;
+                if (i >= 100) {
+                    clearInterval(interval);
+                    status.textContent = 'Chiffrement terminé. Rançon demandée.';
+                    addConsoleLog('Ransomware actif. 5 BTC demandés.', 'success');
+                    showNotification('Ransomware déployé.');
+                }
+            }, 500);
+        }
+
+        function startMITM() {
+            const progress = document.getElementById('mitm-progress');
+            const status = document.getElementById('mitm-status');
+            progress.style.width = '0%';
+            status.textContent = 'Injection ARP en cours...';
+            addConsoleLog('Lancement de l\'attaque MITM...', 'warning');
+
+            let i = 0;
+            const interval = setInterval(() => {
+                i += 25;
+                progress.style.width = `${i}%`;
+                if (i >= 100) {
+                    clearInterval(interval);
+                    status.textContent = 'MITM en cours - trafic intercepté';
+                    addConsoleLog('MITM opérationnel.', 'success');
+                    showNotification('MITM actif.');
+                }
+            }, 400);
+        }
+
+        function installRootkit() {
+            const progress = document.getElementById('rootkit-progress');
+            const status = document.getElementById('rootkit-status');
+            progress.style.width = '0%';
+            status.textContent = 'Installation du rootkit...';
+            addConsoleLog('Installation du rootkit...', 'warning');
+
+            let i = 0;
+            const interval = setInterval(() => {
+                i += 20;
+                progress.style.width = `${i}%`;
+                if (i >= 100) {
+                    clearInterval(interval);
+                    status.textContent = 'Rootkit installé et caché.';
+                    addConsoleLog('Rootkit installé.', 'success');
+                    showNotification('Rootkit opérationnel.');
+                }
+            }, 400);
+        }
+
+        // Gestion des entrées clavier dans la console
+        commandInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                const command = this.value.trim();
+                if (command) {
+                    addConsoleLog('> ' + command);
+                    commandHistory.unshift(command);
+                    historyPosition = -1;
+                    this.value = '';
+                    // Réponse simulée
+                    setTimeout(() => addConsoleLog('Commande exécutée: ' + command), 500);
+                }
+            } else if (e.key === 'ArrowUp') {
+                if (commandHistory.length > 0 && historyPosition < commandHistory.length - 1) {
+                    historyPosition++;
+                    this.value = commandHistory[historyPosition];
+                }
+            } else if (e.key === 'ArrowDown') {
+                if (historyPosition > 0) {
+                    historyPosition--;
+                    this.value = commandHistory[historyPosition];
+                } else {
+                    historyPosition = -1;
+                    this.value = '';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+
